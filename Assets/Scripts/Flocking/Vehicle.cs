@@ -9,11 +9,7 @@ using System.Collections.Generic;
 
 abstract public class Vehicle : MonoBehaviour
 {
-
-    //-----------------------------------------------------------------------
-    // Class Fields
-    //-----------------------------------------------------------------------
-
+    //FEILDS -------------------------------------------------------------------------------------------------------
     //movement
     protected Vector3 acceleration;
     protected Vector3 velocity;
@@ -30,7 +26,7 @@ abstract public class Vehicle : MonoBehaviour
     public float maxForce = 12.0f;
     public float mass = 3.0f;
     public float radius = 1.0f;
-    public float safeDistance = 10.0f;
+    public float safeDistance = 100.0f;
 
     //access to Character Controller component
     CharacterController charControl;
@@ -42,9 +38,7 @@ abstract public class Vehicle : MonoBehaviour
     protected GameManager gm;
 
 
-    //-----------------------------------------------------------------------
-    // Start and Update
-    //-----------------------------------------------------------------------
+    //START AND UPDATE -----------------------------------------------------------------------------------------------
     virtual public void Start()
     {
         //set variables     
@@ -70,7 +64,7 @@ abstract public class Vehicle : MonoBehaviour
         velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
 
         //set height to that of the world
-        gameObject.transform.position = new Vector3(gameObject.transform.position.x, (Terrain.activeTerrain.SampleHeight(transform.position) + 1.0f), gameObject.transform.position.z);
+        gameObject.transform.position = new Vector3(gameObject.transform.position.x, (Terrain.activeTerrain.SampleHeight(transform.position) + 1.1f), gameObject.transform.position.z);
         
 
         //orient vehcle
@@ -83,11 +77,7 @@ abstract public class Vehicle : MonoBehaviour
         acceleration = Vector3.zero;
     }
 
-
-    //-----------------------------------------------------------------------
-    // Class Methods
-    //-----------------------------------------------------------------------
-
+//METHODS --------------------------------------------------------------------------------------------------
     protected void ApplyForce(Vector3 steeringForce)
     {
         //f = m/a and a = F/m
@@ -226,27 +216,4 @@ abstract public class Vehicle : MonoBehaviour
         //return
         return steer;
     }
-
-    //flee
-    protected Vector3 Flee(GameObject target)
-    {
-        //find vector to the target
-        desired = target.transform.position - transform.position;
-
-        //check if hes close enough for horse to be "scared"
-        if(desired.magnitude < safeDistance * 3)
-        {
-            //flee - go the opposite direction
-            desired = desired.normalized * maxSpeed;
-            desired -= velocity;
-            desired.y = 0;
-            return (desired * -1);
-        }
-        else
-        {
-            //return zero vector
-            return Vector3.zero;
-        }
-    }
-
 }
