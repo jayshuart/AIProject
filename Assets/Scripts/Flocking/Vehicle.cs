@@ -114,7 +114,7 @@ abstract public class Vehicle : MonoBehaviour
         Vector3 vecToCenter = ob.transform.position - transform.position;
 
         //if object is out of my safe zone, ignore it
-        if (vecToCenter.magnitude > safe)
+        if (vecToCenter.magnitude > (safe + obRad))
         {
             return Vector3.zero;
         }
