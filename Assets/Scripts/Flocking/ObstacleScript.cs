@@ -14,7 +14,7 @@ public class ObstacleScript : MonoBehaviour
         //get our gm object
         gm = GameObject.Find("GameManagerGO").GetComponent<GameManager>();
 
-        //add self tot he gm's list of obstacles
+        //add self to the gm's list of obstacles
         gm.obstacles.Add(gameObject);
 
         //make radius that of its collider
