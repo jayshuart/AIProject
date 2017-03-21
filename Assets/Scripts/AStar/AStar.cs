@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class AStar : MonoBehaviour
 {
+    [SerializeField] private GameObject nodeToSeek; //If the user wants to seek a node
     private MeshRenderer[] pathNodeRenderers; //The path node renderers
     private Seeker seekerScript; //For seeking the next node on the path
     private List<PriorityItem> pathList;
@@ -21,21 +22,26 @@ public class AStar : MonoBehaviour
         pathNodeRenderers = new MeshRenderer[pathNodes.Count]; //Assign a length to the pathNodeRenderers
         seekerScript = GetComponent<Seeker>();
 
-        //Choose one of three possible end nodes
-        int endNodeNumber = Random.Range(0, 3);
+        Debug.Log(nodeToSeek);
         string endNodeName = "PathNode39"; //Default value
-        switch (endNodeNumber)
+        if (nodeToSeek == null) //If no node is specified, choose one of three possible end nodes
         {
-            case 0:
-                endNodeName = "PathNode7";
-                break;
-            case 1:
-                endNodeName = "PathNode28";
-                break;
-            case 2:
-                endNodeName = "PathNode39";
-                break;
+            int endNodeNumber = Random.Range(0, 3);
+            switch (endNodeNumber)
+            {
+                case 0:
+                    endNodeName = "PathNode7";
+                    break;
+                case 1:
+                    endNodeName = "PathNode28";
+                    break;
+                case 2:
+                    endNodeName = "PathNode39";
+                    break;
+            }
         }
+        else //If a node is specified, seek that node
+            endNodeName = nodeToSeek.name;
 
         for (int i = 0; i < pathNodes.Count; i++)
         {
@@ -67,9 +73,9 @@ public class AStar : MonoBehaviour
         seekerScript.seekerTarget = pathList[0].gameObject; //Target the item at the top of the list
 
         //When reaching a node, decide whether to target a new node or if this is the last node
-        if (pathList.Count == 1 && (seekerScript.seekerTarget.transform.position - gameObject.transform.position).magnitude < 10)
-            return;
-        else if ((seekerScript.seekerTarget.transform.position - gameObject.transform.position).magnitude < 10)
+        if (pathList.Count == 1 && (seekerScript.seekerTarget.transform.position - gameObject.transform.position).magnitude < 5)
+            seekerScript.maxSpeed = 0;
+        else if ((seekerScript.seekerTarget.transform.position - gameObject.transform.position).magnitude < 5)
             pathList.RemoveAt(0);
     }
 
