@@ -7,9 +7,9 @@ using UnityEngine;
 /// </summary>
 public class AStar : MonoBehaviour
 {
-    [SerializeField] private GameObject nodeToSeek; //If the user wants to seek a node
+    [SerializeField] private PriorityItem nodeToSeek; //If the user wants to seek a node
     private MeshRenderer[] pathNodeRenderers; //The path node renderers
-    private Seeker seekerScript; //For seeking the next node on the path
+    private AStarSeeker seekerScript; //For seeking the next node on the path
     private List<PriorityItem> pathList;
 
     void Start() //Use this for initialization
@@ -20,11 +20,10 @@ public class AStar : MonoBehaviour
         pathNodes.AddRange(GameObject.FindGameObjectsWithTag("PathNode")); //Get all the path nodes
         PriorityItem[] priorityNodes = new PriorityItem[pathNodes.Count]; //Assign space for all of the priority nodes
         pathNodeRenderers = new MeshRenderer[pathNodes.Count]; //Assign a length to the pathNodeRenderers
-        seekerScript = GetComponent<Seeker>();
+        seekerScript = GetComponent<AStarSeeker>();
 
-        Debug.Log(nodeToSeek);
         string endNodeName = "PathNode39"; //Default value
-        if (nodeToSeek == null) //If no node is specified, choose one of three possible end nodes
+        if (nodeToSeek == null || nodeToSeek.name == "PathNode0") //If no node is specified, choose one of three possible end nodes
         {
             int endNodeNumber = Random.Range(0, 3);
             switch (endNodeNumber)
