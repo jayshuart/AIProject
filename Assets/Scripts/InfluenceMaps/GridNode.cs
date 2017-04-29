@@ -5,27 +5,91 @@ using UnityEngine;
 public class GridNode : MonoBehaviour {
 
     #region Fields
+    private enum Teams
+    {
+        Red,
+        Green,
+        None
+    };
+    private Teams team;
     private SpriteRenderer nodeIcon; 
-    private Dictionary<string, Color32> team; //dictionary of teams colors
+    private Dictionary<Teams, Color32> teamColors; //dictionary of teamColors colors
+
+    //influence of each team on this particular node
+    private int greenInfluence;
+    private int redInfluence;
+    #endregion
+
+    #region Properties
+    public string Team
+    {
+        get { return team.ToString(); } //convert team enum into a string
+        set
+        {
+            //check for validity of value
+            if(value == "Red" || value == "red" || value == "RED") //incase yall wanna do somethin other than "Red"
+            {
+                //set team to red
+                team = Teams.Red;
+            }
+            else if (value == "Green" || value == "green" || value == "GREEN") //incase yall wanna do somethin other than "Red"
+            {
+                //set team to green
+                team = Teams.Green;
+            }
+            else
+            {
+                //anything else should be a none
+                team = Teams.None;
+            }
+        }
+    }
+
+    public int RedInfluence
+    {
+        get { return redInfluence; }
+        set
+        {
+            redInfluence = value;
+        }
+    }
+
+    public int GreenInfluence
+    {
+        get { return greenInfluence; }
+        set
+        {
+            greenInfluence = value;
+        }
+    }
     #endregion
 
     #region Start and Update
     // Use this for initialization
     void Start () {
         //build dict
-        team = new Dictionary<string, Color32>();
-        team.Add("Red", new Color32(255, 0, 0, 155));
-        team.Add("Green", new Color32(0, 255, 0, 155));
-        team.Add("None", new Color32(101, 101, 101, 155));
+        teamColors = new Dictionary<Teams, Color32>();
+        teamColors.Add(Teams.Red, new Color32(255, 0, 0, 155));
+        teamColors.Add(Teams.Green, new Color32(0, 255, 0, 155));
+        teamColors.Add(Teams.None, new Color32(101, 101, 101, 155));
+
+        //set team initally
+        team = Teams.None;
 
         //get spriterenderer and set inital color
         nodeIcon = this.gameObject.GetComponent<SpriteRenderer>();
-        nodeIcon.color = team["None"];
+        nodeIcon.color = teamColors[team];
+
+        //set inital influence for both teams
+        greenInfluence = 0;
+        redInfluence = 0;
 
     }
 	
 	// Update is called once per frame
 	void Update () {
+        //update this nodes team
+        CompareInfluence(redInfluence, greenInfluence);
 		
 	}
     #endregion
@@ -38,7 +102,25 @@ public class GridNode : MonoBehaviour {
     /// <param name="greenStrength">Influence on this node form green team</param>
     public void CompareInfluence(int redStrength, int greenStrength)
     {
-
+        //compare strengths and set tthis nodes team
+        if(redStrength > greenStrength) //red better than green
+        {
+            //update team and iconColor
+            team = Teams.Red;
+            nodeIcon.color = teamColors[team];
+        }
+        else if(greenStrength == redStrength) //both strengths are the same
+        {
+            //update team and iconColor
+            team = Teams.None;
+            nodeIcon.color = teamColors[team];
+        }
+        else //green is the only option left
+        {
+            //update team and iconColor
+            team = Teams.Green;
+            nodeIcon.color = teamColors[team];
+        }
     }
     #endregion
 }

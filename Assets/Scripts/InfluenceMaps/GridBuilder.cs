@@ -32,6 +32,28 @@ public class GridBuilder : MonoBehaviour {
     #endregion
 
     #region Helper Methods
+    /// <summary>
+    /// gets the node that covers a specified area in world space
+    /// </summary>
+    /// <param name="postion">Position in world sapce</param>
+    /// <returns></returns>
+    public GameObject GetNode(Vector3 position)
+    {
+        //find spread of nodes
+        float xDiff = terrain.GetComponent<Terrain>().terrainData.size.x / rows;
+        float zDiff = terrain.GetComponent<Terrain>().terrainData.size.z / columns;
+
+        //remove inital offset from position
+        position.x -= terrain.transform.position.x + (xDiff / 2);
+        position.z -= terrain.transform.position.z + (zDiff / 2);
+
+        //give back the node that covers that area
+        return grid[0, 0];
+    }
+
+    /// <summary>
+    /// Builds grid of influence map nodes
+    /// </summary>
     private void BuildGrid()
     {
         //find spread of nodes
