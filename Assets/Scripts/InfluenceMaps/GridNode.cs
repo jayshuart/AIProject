@@ -101,7 +101,7 @@ public class GridNode : MonoBehaviour {
         team = Teams.None;
 
         //get spriterenderer and set inital color
-        nodeIcon = this.gameObject.GetComponent<SpriteRenderer>();
+        nodeIcon = gameObject.GetComponent<SpriteRenderer>();
         nodeIcon.color = teamColors[team];
 
         //set inital influence for both teams

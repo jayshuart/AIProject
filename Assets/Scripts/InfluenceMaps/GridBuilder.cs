@@ -12,7 +12,9 @@ public class GridBuilder : MonoBehaviour {
     [SerializeField] private int rows;
     [SerializeField] private int columns;
 
-    public GameObject cube; //FOR TESTING PURPOSES
+    //public GameObject cube; //FOR TESTING PURPOSES
+
+    private GameObject[] units;
     #endregion
 
     #region Start and Update
@@ -24,28 +26,38 @@ public class GridBuilder : MonoBehaviour {
 
         //fill grid with nodes
         BuildGrid();
+
+        //Find and add all units
+        units = GameObject.FindGameObjectsWithTag("Unit");
     }
 
     //Update is called once per frame
-    void LateUpdate()
+    void Update()
     {
         //TEST CODE
-        foreach (GameObject gridNode in grid) //clear all nodes
-        {
-            gridNode.GetComponent<GridNode>().RedInfluence = 0;
-        }
-
-        //get xy pos of cube in grid coords
-        int x = GetNode(cube.transform.position)[0];
-        int y = GetNode(cube.transform.position)[1];
-
-        GameObject n = grid[x, y]; //get node at the pos of the cube
-        n.GetComponent<GridNode>().Source = true; //make it a source node
-        n.GetComponent<GridNode>().RedInfluence = 3; //influence that node
-
-        //aplly influence to its neighbors
-        InfluenceNeighbors(x, y);
+        //foreach (GameObject gridNode in grid) //clear all nodes
+        //{
+        //    gridNode.GetComponent<GridNode>().RedInfluence = 0;
+        //}
+        //
+        ////get xy pos of cube in grid coords
+        //int x = GetNode(cube.transform.position)[0];
+        //int y = GetNode(cube.transform.position)[1];
+        //
+        //GameObject n = grid[x, y]; //get node at the pos of the cube
+        //n.GetComponent<GridNode>().Source = true; //make it a source node
+        //n.GetComponent<GridNode>().RedInfluence = 3; //influence that node
+        //
+        ////aplly influence to its neighbors
+        //InfluenceNeighbors(x, y);
         //END TEST CODE
+
+        foreach (GameObject unit in units)
+        {
+            grid[GetNode(unit.transform.position)[0], GetNode(unit.transform.position)[1]].GetComponent<GridNode>().Source = true; //make it a source node
+            grid[GetNode(unit.transform.position)[0], GetNode(unit.transform.position)[1]].GetComponent<GridNode>().RedInfluence = 4; //influence that node
+            InfluenceNeighbors(GetNode(unit.transform.position)[0], GetNode(unit.transform.position)[1]);
+        }
     }
     #endregion
 
@@ -127,11 +139,15 @@ public class GridBuilder : MonoBehaviour {
         }
 
         int influence = grid[x, y].GetComponent<GridNode>().ActiveInfluence; //The influence of the grid point
-        for (int i = x - influence; i < x + influence + 1; i++)
+        //Loop through the grid around the point of influence, don't go out of bounds
+        for (int i = x - influence; (i < x + influence + 1) && i >= 0 && i < 20; i++)
         {
-            for (int j = y - influence; j < y + influence + 1; j++)
+            for (int j = y - influence; (j < y + influence + 1) && j >= 0 && j < 20; j++)
             {
                 int distance = influence - (int)Vector2.Distance(new Vector2(i, j), new Vector2(x, y)); //The distance from the center point to the current point
+
+                if (Mathf.Abs(x - i) == influence - 1 && Mathf.Abs(y - j) == influence - 1) //Special case for the edges of a unit with a strength of 4
+                    distance = 1;
 
                 if (!(x == i && y == j) && distance > 0) //Not the center point
                 {
