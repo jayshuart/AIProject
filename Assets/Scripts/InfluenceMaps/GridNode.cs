@@ -15,6 +15,8 @@ public class GridNode : MonoBehaviour {
     private SpriteRenderer nodeIcon; 
     private Dictionary<Teams, Color32> teamColors; //dictionary of teamColors colors
 
+    public byte alpha;
+
     //influence of each team on this particular node
     private int greenInfluence;
     private int redInfluence;
@@ -69,9 +71,9 @@ public class GridNode : MonoBehaviour {
     void Start () {
         //build dict
         teamColors = new Dictionary<Teams, Color32>();
-        teamColors.Add(Teams.Red, new Color32(255, 0, 0, 155));
-        teamColors.Add(Teams.Green, new Color32(0, 255, 0, 155));
-        teamColors.Add(Teams.None, new Color32(101, 101, 101, 155));
+        teamColors.Add(Teams.Red, new Color32(255, 0, 0, alpha));
+        teamColors.Add(Teams.Green, new Color32(0, 255, 0, alpha));
+        teamColors.Add(Teams.None, new Color32(101, 101, 101, alpha));
 
         //set team initally
         team = Teams.None;

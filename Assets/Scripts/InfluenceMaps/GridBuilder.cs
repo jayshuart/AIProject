@@ -12,9 +12,6 @@ public class GridBuilder : MonoBehaviour {
     [SerializeField] private int rows;
     [SerializeField] private int columns;
 
-    //test field
-    public GameObject cube;
-
     #endregion
 
     #region Start and Update
@@ -30,13 +27,6 @@ public class GridBuilder : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        //TEST CODE FOR NODES
-        foreach(GameObject gridNode in grid) //clear all nodes
-        {
-            gridNode.GetComponent<GridNode>().RedInfluence = 0;
-        }
-        GameObject n = GetNode(cube.transform.position); //get node ta the pos of the cube
-        n.GetComponent<GridNode>().RedInfluence = 4; //influence that node
 		
 	}
     #endregion
