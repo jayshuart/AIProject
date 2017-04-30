@@ -17,7 +17,8 @@ public class GridBuilder : MonoBehaviour {
 
     #region Start and Update
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         //instantiate grid
         grid = new GameObject[rows, columns];
 
@@ -25,9 +26,9 @@ public class GridBuilder : MonoBehaviour {
         BuildGrid();
     }
 
-    // Update is called once per frame
-    void Update () {
-
+    //Update is called once per frame
+    void LateUpdate()
+    {
         //TEST CODE
         foreach (GameObject gridNode in grid) //clear all nodes
         {
@@ -38,14 +39,13 @@ public class GridBuilder : MonoBehaviour {
         int x = GetNode(cube.transform.position)[0];
         int y = GetNode(cube.transform.position)[1];
 
-        GameObject n = grid[x, y]; //get node ta the pos of the cube
+        GameObject n = grid[x, y]; //get node at the pos of the cube
         n.GetComponent<GridNode>().Source = true; //make it a source node
-        n.GetComponent<GridNode>().RedInfluence = 3; //influence that nod
+        n.GetComponent<GridNode>().RedInfluence = 3; //influence that node
 
         //aplly influence to its neighbors
-        //InfluenceNeighbors(x, y);
+        InfluenceNeighbors(x, y);
         //END TEST CODE
-
     }
     #endregion
 
@@ -85,6 +85,7 @@ public class GridBuilder : MonoBehaviour {
     /// <param name="y">y value of grid[x,y]</param>
     public void InfluenceNeighbors(int x, int y)
     {
+        /*
         //check if node is a source node
         if(!grid[x, y].GetComponent<GridNode>().Source)
         {
@@ -116,6 +117,30 @@ public class GridBuilder : MonoBehaviour {
 
             //reset influence
             localInfluence = grid[x, y].GetComponent<GridNode>().ActiveInfluence - 1;
+        }
+        */
+
+        //check if node is a source node
+        if (!grid[x, y].GetComponent<GridNode>().Source)
+        {
+            return; //leave the method bc its not a source node
+        }
+
+        int influence = grid[x, y].GetComponent<GridNode>().ActiveInfluence; //The influence of the grid point
+        for (int i = x - influence; i < x + influence + 1; i++)
+        {
+            for (int j = y - influence; j < y + influence + 1; j++)
+            {
+                int distance = influence - (int)Vector2.Distance(new Vector2(i, j), new Vector2(x, y)); //The distance from the center point to the current point
+
+                if (!(x == i && y == j) && distance > 0) //Not the center point
+                {
+                    if (grid[x, y].GetComponent<GridNode>().Team == "Red")
+                        grid[i, j].GetComponent<GridNode>().RedInfluence += distance;
+                    else if (grid[x, y].GetComponent<GridNode>().Team == "Green")
+                        grid[i, j].GetComponent<GridNode>().GreenInfluence += distance;
+                }
+            }
         }
     }
 

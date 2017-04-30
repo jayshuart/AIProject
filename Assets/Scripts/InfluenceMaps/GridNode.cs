@@ -89,7 +89,8 @@ public class GridNode : MonoBehaviour {
 
     #region Start and Update
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         //build dict
         teamColors = new Dictionary<Teams, Color32>();
         teamColors.Add(Teams.Red, new Color32(255, 0, 0, alpha));
@@ -107,14 +108,16 @@ public class GridNode : MonoBehaviour {
         greenInfluence = 0;
         redInfluence = 0;
         source = false;
-
     }
 	
 	// Update is called once per frame
-	void Update () {
-        //update this nodes team
-        CompareInfluence(redInfluence, greenInfluence);
-		
+	void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space)) //Update map on keypress
+        {
+            //update this nodes team
+            CompareInfluence(redInfluence, greenInfluence);
+        }
 	}
     #endregion
 
@@ -134,19 +137,19 @@ public class GridNode : MonoBehaviour {
             nodeIcon.color = teamColors[team];
             activeInfluence = redInfluence;
         }
-        else if(greenStrength == redStrength) //both strengths are the same
-        {
-            //update team and iconColor
-            team = Teams.None;
-            nodeIcon.color = teamColors[team];
-            activeInfluence = 0;
-        }
-        else //green is the only option left
+        else if(greenStrength > redStrength) //both strengths are the same
         {
             //update team and iconColor
             team = Teams.Green;
             nodeIcon.color = teamColors[team];
             activeInfluence = greenInfluence;
+        }
+        else //green is the only option left
+        {
+            //update team and iconColor
+            team = Teams.None;
+            nodeIcon.color = teamColors[team];
+            activeInfluence = 0;
         }
     }
     #endregion
