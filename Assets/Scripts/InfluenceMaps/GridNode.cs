@@ -15,11 +15,14 @@ public class GridNode : MonoBehaviour {
     private SpriteRenderer nodeIcon; 
     private Dictionary<Teams, Color32> teamColors; //dictionary of teamColors colors
 
-    public byte alpha;
+    public byte alpha; //for coloring gridIcons
 
     //influence of each team on this particular node
     private int greenInfluence;
     private int redInfluence;
+    private int activeInfluence; //whatever team controls this node will have its influence here
+
+    private bool source; //is this node a source of influence? - for linear loss of influence
     #endregion
 
     #region Properties
@@ -64,6 +67,24 @@ public class GridNode : MonoBehaviour {
             greenInfluence = value;
         }
     }
+
+    public int ActiveInfluence
+    {
+        get { return activeInfluence; }
+        set
+        {
+            activeInfluence = value;
+        }
+    }
+
+    public bool Source
+    {
+        get { return source; }
+        set
+        {
+            source = value;
+        }
+    }
     #endregion
 
     #region Start and Update
@@ -85,6 +106,7 @@ public class GridNode : MonoBehaviour {
         //set inital influence for both teams
         greenInfluence = 0;
         redInfluence = 0;
+        source = false;
 
     }
 	
@@ -110,18 +132,21 @@ public class GridNode : MonoBehaviour {
             //update team and iconColor
             team = Teams.Red;
             nodeIcon.color = teamColors[team];
+            activeInfluence = redInfluence;
         }
         else if(greenStrength == redStrength) //both strengths are the same
         {
             //update team and iconColor
             team = Teams.None;
             nodeIcon.color = teamColors[team];
+            activeInfluence = 0;
         }
         else //green is the only option left
         {
             //update team and iconColor
             team = Teams.Green;
             nodeIcon.color = teamColors[team];
+            activeInfluence = greenInfluence;
         }
     }
     #endregion

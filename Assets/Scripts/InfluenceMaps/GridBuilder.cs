@@ -12,6 +12,7 @@ public class GridBuilder : MonoBehaviour {
     [SerializeField] private int rows;
     [SerializeField] private int columns;
 
+    public GameObject cube; //FOR TESTING PURPOSES
     #endregion
 
     #region Start and Update
@@ -22,13 +23,30 @@ public class GridBuilder : MonoBehaviour {
 
         //fill grid with nodes
         BuildGrid();
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    }
+
+    // Update is called once per frame
+    void Update () {
+
+        //TEST CODE
+        foreach (GameObject gridNode in grid) //clear all nodes
+        {
+            gridNode.GetComponent<GridNode>().RedInfluence = 0;
+        }
+
+        //get xy pos of cube in grid coords
+        int x = GetNode(cube.transform.position)[0];
+        int y = GetNode(cube.transform.position)[1];
+
+        GameObject n = grid[x, y]; //get node ta the pos of the cube
+        n.GetComponent<GridNode>().Source = true; //make it a source node
+        n.GetComponent<GridNode>().RedInfluence = 3; //influence that nod
+
+        //aplly influence to its neighbors
+        //InfluenceNeighbors(x, y);
+        //END TEST CODE
+
+    }
     #endregion
 
     #region Helper Methods
@@ -36,8 +54,8 @@ public class GridBuilder : MonoBehaviour {
     /// gets the node that covers a specified area in world space
     /// </summary>
     /// <param name="postion">Position in world sapce</param>
-    /// <returns>Node that covers that position</returns>
-    public GameObject GetNode(Vector3 position)
+    /// <returns>x/z values for grid array of node that covers that position</returns>
+    public int[] GetNode(Vector3 position)
     {
         //find spread of nodes
         float xDiff = terrain.GetComponent<Terrain>().terrainData.size.x / rows;
@@ -56,7 +74,49 @@ public class GridBuilder : MonoBehaviour {
         int z = (int)position.z;
 
         //give back the node that covers that area
-        return grid[x, z];
+        int[] values = { x, z };
+        return values;
+    }
+
+    /// <summary>
+    /// applies influence from a source node to its neighbors
+    /// </summary>
+    /// <param name="x">x value of grid[x,y]</param>
+    /// <param name="y">y value of grid[x,y]</param>
+    public void InfluenceNeighbors(int x, int y)
+    {
+        //check if node is a source node
+        if(!grid[x, y].GetComponent<GridNode>().Source)
+        {
+            return; //leave the method bc its not a source node
+        }
+
+        //apply influence linearly to neighbors
+        int localInfluence = grid[x, y].GetComponent<GridNode>().ActiveInfluence - 1;
+        for (int a = x; a < (x + grid[x, y].GetComponent<GridNode>().ActiveInfluence - 1); a++)
+        {
+            for (int b = y; b < (y + grid[x, y].GetComponent<GridNode>().ActiveInfluence - 1); b++)
+            {
+                //get which team this node is on and apply that teams influence on neighbor
+                if(grid[x, y].GetComponent<GridNode>().Team == "Red")
+                {
+                    grid[a, b].GetComponent<GridNode>().RedInfluence += localInfluence;
+                }
+                else if (grid[x, y].GetComponent<GridNode>().Team == "Green")
+                {
+                    grid[a, b].GetComponent<GridNode>().GreenInfluence += localInfluence;
+                }
+
+                //drop influence
+                localInfluence--;
+
+                //DEBUG LINE
+                Debug.Log(a + ", " + b);
+            }
+
+            //reset influence
+            localInfluence = grid[x, y].GetComponent<GridNode>().ActiveInfluence - 1;
+        }
     }
 
     /// <summary>
