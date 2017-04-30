@@ -12,6 +12,9 @@ public class GridBuilder : MonoBehaviour {
     [SerializeField] private int rows;
     [SerializeField] private int columns;
 
+    //test field
+    public GameObject cube;
+
     #endregion
 
     #region Start and Update
@@ -27,6 +30,13 @@ public class GridBuilder : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        //TEST CODE FOR NODES
+        foreach(GameObject gridNode in grid) //clear all nodes
+        {
+            gridNode.GetComponent<GridNode>().RedInfluence = 0;
+        }
+        GameObject n = GetNode(cube.transform.position); //get node ta the pos of the cube
+        n.GetComponent<GridNode>().RedInfluence = 4; //influence that node
 		
 	}
     #endregion
@@ -36,7 +46,7 @@ public class GridBuilder : MonoBehaviour {
     /// gets the node that covers a specified area in world space
     /// </summary>
     /// <param name="postion">Position in world sapce</param>
-    /// <returns></returns>
+    /// <returns>Node that covers that position</returns>
     public GameObject GetNode(Vector3 position)
     {
         //find spread of nodes
@@ -44,11 +54,19 @@ public class GridBuilder : MonoBehaviour {
         float zDiff = terrain.GetComponent<Terrain>().terrainData.size.z / columns;
 
         //remove inital offset from position
-        position.x -= terrain.transform.position.x + (xDiff / 2);
-        position.z -= terrain.transform.position.z + (zDiff / 2);
+        position.x -= terrain.transform.position.x;
+        position.z -= terrain.transform.position.z;
+
+        //divide xDiff and zDiff out of position
+        position.x = position.x / xDiff;
+        position.z = position.z / zDiff;
+
+        //convert position values to ints
+        int x = (int)position.x;
+        int z = (int)position.z;
 
         //give back the node that covers that area
-        return grid[0, 0];
+        return grid[x, z];
     }
 
     /// <summary>
