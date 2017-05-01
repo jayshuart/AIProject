@@ -35,6 +35,14 @@ public class GridBuilder : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.Space)) //Update map on keypress
         {
+            //Reset tile influences
+            foreach (GameObject node in grid)
+            {
+                node.GetComponent<GridNode>().GreenInfluence = 0;
+                node.GetComponent<GridNode>().RedInfluence = 0;
+                node.GetComponent<GridNode>().ActiveInfluence = 0;
+            }
+
             //Find and add all units
             GameObject[] unitsArray = GameObject.FindGameObjectsWithTag("Unit");
 
@@ -94,18 +102,8 @@ public class GridBuilder : MonoBehaviour {
 
                 tile.CompareInfluence(tile.RedInfluence, tile.GreenInfluence);
 
-                Debug.Log(tile.Team);
-
                 InfluenceNeighbors(x, y); //Calculate the grid's influence
             }
-        }
-
-        //Reset tile influences
-        foreach (GameObject node in grid)
-        {
-            node.GetComponent<GridNode>().GreenInfluence = 0;
-            node.GetComponent<GridNode>().RedInfluence = 0;
-            node.GetComponent<GridNode>().ActiveInfluence = 0;
         }
     }
     #endregion
@@ -166,10 +164,6 @@ public class GridBuilder : MonoBehaviour {
 
                 if (!(x == i && y == j) && distance > 0) //Not the center point
                 {
-                    //Reset influence
-                    grid[i, j].GetComponent<GridNode>().RedInfluence = 0;
-                    grid[i, j].GetComponent<GridNode>().GreenInfluence = 0;
-
                     if (grid[x, y].GetComponent<GridNode>().Team == "Red") //Red team tile
                         grid[i, j].GetComponent<GridNode>().RedInfluence += distance;
                     else if (grid[x, y].GetComponent<GridNode>().Team == "Green") //Green team tile
