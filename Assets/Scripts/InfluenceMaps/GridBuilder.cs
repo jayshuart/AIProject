@@ -72,35 +72,7 @@ public class GridBuilder : MonoBehaviour {
                 else
                     tile.GreenInfluence += unit.GetComponent<UnitStats>().strength;
 
-                //if (tile.RedInfluence > tile.GreenInfluence) //Red tile
-                //    tile.Team = "Red";
-                //else if (tile.RedInfluence < tile.GreenInfluence) //Green tile
-                //    tile.Team = "Green";
-                //else
-                //    tile.Team = "None";
-                
-                //if (tile.Team == "None") //No unit on this tile
-                //{
-                //    tile.Team = unit.GetComponent<UnitStats>().team;
-                //
-                //    //Assign unit strength
-                //    if (tile.Team == "Red")
-                //        tile.RedInfluence = unit.GetComponent<UnitStats>().strength;
-                //    else
-                //        tile.GreenInfluence = unit.GetComponent<UnitStats>().strength;
-                //}
-                //else //Unit on this tile
-                //{
-                //    //Assign unit strength
-                //    if (tile.Team == "Red")
-                //        tile.GreenInfluence = unit.GetComponent<UnitStats>().strength;
-                //    else
-                //        tile.RedInfluence = unit.GetComponent<UnitStats>().strength;
-                //
-                //    tile.Team = "None";
-                //}
-
-                tile.CompareInfluence(tile.RedInfluence, tile.GreenInfluence);
+                tile.CompareInfluence(tile.RedInfluence, tile.GreenInfluence); //Compare the influence
 
                 InfluenceNeighbors(x, y); //Calculate the grid's influence
             }
@@ -159,20 +131,20 @@ public class GridBuilder : MonoBehaviour {
             {
                 int distance = influence - (int)Vector2.Distance(new Vector2(i, j), new Vector2(x, y)); //The distance from the center point to the current point
 
-                if (Mathf.Abs(x - i) == influence - 1 && Mathf.Abs(y - j) == influence - 1) //Special case for the edges of a unit with a strength of 4
-                    distance = 1;
-
                 if (!(x == i && y == j) && distance > 0) //Not the center point
                 {
-                    if (grid[x, y].GetComponent<GridNode>().Team == "Red") //Red team tile
-                        grid[i, j].GetComponent<GridNode>().RedInfluence += distance;
-                    else if (grid[x, y].GetComponent<GridNode>().Team == "Green") //Green team tile
-                        grid[i, j].GetComponent<GridNode>().GreenInfluence += distance;
-                    else if (grid[x, y].GetComponent<GridNode>().Team == "None") //Both teams on tile
+                    //Save the current node
+                    GridNode gNode = grid[i, j].GetComponent<GridNode>();
+
+                    if (grid[x, y].GetComponent<GridNode>().Team == "None") //Both teams on tile
                     {
-                        grid[i, j].GetComponent<GridNode>().RedInfluence += distance;
-                        grid[i, j].GetComponent<GridNode>().GreenInfluence += distance;
+                        gNode.RedInfluence += distance;
+                        gNode.GreenInfluence += distance;
                     }
+                    else if (grid[x, y].GetComponent<GridNode>().Team == "Red") //Red team tile
+                        gNode.RedInfluence += distance;
+                    else if (grid[x, y].GetComponent<GridNode>().Team == "Green") //Green team tile
+                        gNode.GreenInfluence += distance;
                 }
             }
         }

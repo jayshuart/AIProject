@@ -149,7 +149,6 @@ public class GridNode : MonoBehaviour {
             //update team and iconColor
             team = Teams.None;
             nodeIcon.color = teamColors[team];
-            activeInfluence = 0;
         }
     }
     #endregion
