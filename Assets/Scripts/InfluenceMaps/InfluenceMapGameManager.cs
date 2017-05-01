@@ -11,7 +11,7 @@ public class InfluenceMapGameManager : MonoBehaviour {
 	Vector3 hit;
 	private float camSpeed = 200.0f;
 	private float zoomSpeed = 100.0f;
-	private float maxZoom = 250f;
+	private float maxZoom = 600f;
 	private float minZoom = 50f;
 
 	public GameObject whiteCubePrefab;

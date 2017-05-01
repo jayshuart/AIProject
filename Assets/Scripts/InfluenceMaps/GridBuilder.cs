@@ -75,6 +75,8 @@ public class GridBuilder : MonoBehaviour {
                 tile.CompareInfluence(tile.RedInfluence, tile.GreenInfluence); //Compare the influence
 
                 InfluenceNeighbors(x, y); //Calculate the grid's influence
+
+                tile.CompareInfluence(tile.RedInfluence, tile.GreenInfluence); //Compare the influence
             }
         }
     }
@@ -124,27 +126,30 @@ public class GridBuilder : MonoBehaviour {
 
         int influence = grid[x, y].GetComponent<GridNode>().ActiveInfluence; //The influence of the grid point
 
-        //Loop through the grid around the point of influence, don't go out of bounds
-        for (int i = x - influence; (i < x + influence + 1) && i >= 0 && i < 20; i++)
+        //Loop through the grid around the point of influence
+        for (int i = x - influence; i < x + influence + 1; i++)
         {
-            for (int j = y - influence; (j < y + influence + 1) && j >= 0 && j < 20; j++)
+            for (int j = y - influence; j < y + influence + 1; j++)
             {
-                int distance = influence - (int)Vector2.Distance(new Vector2(i, j), new Vector2(x, y)); //The distance from the center point to the current point
-
-                if (!(x == i && y == j) && distance > 0) //Not the center point
+                if (i >= 0 && j >= 0 && i < 20 && j < 20) //Don't go out of bounds
                 {
-                    //Save the current node
-                    GridNode gNode = grid[i, j].GetComponent<GridNode>();
+                    int distance = influence - (int)Vector2.Distance(new Vector2(i, j), new Vector2(x, y)); //The distance from the center point to the current point
 
-                    if (grid[x, y].GetComponent<GridNode>().Team == "None") //Both teams on tile
+                    if (!(x == i && y == j) && distance > 0) //Not the center point
                     {
-                        gNode.RedInfluence += distance;
-                        gNode.GreenInfluence += distance;
+                        //Save the current node
+                        GridNode gNode = grid[i, j].GetComponent<GridNode>();
+
+                        if (grid[x, y].GetComponent<GridNode>().Team == "None") //Both teams on tile
+                        {
+                            gNode.RedInfluence += distance;
+                            gNode.GreenInfluence += distance;
+                        }
+                        else if (grid[x, y].GetComponent<GridNode>().Team == "Red") //Red team tile
+                            gNode.RedInfluence += distance;
+                        else if (grid[x, y].GetComponent<GridNode>().Team == "Green") //Green team tile
+                            gNode.GreenInfluence += distance;
                     }
-                    else if (grid[x, y].GetComponent<GridNode>().Team == "Red") //Red team tile
-                        gNode.RedInfluence += distance;
-                    else if (grid[x, y].GetComponent<GridNode>().Team == "Green") //Green team tile
-                        gNode.GreenInfluence += distance;
                 }
             }
         }
