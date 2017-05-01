@@ -14,7 +14,7 @@ public class GridBuilder : MonoBehaviour {
 
     //public GameObject cube; //FOR TESTING PURPOSES
 
-    private GameObject[] units;
+    private List<GameObject> units;
     #endregion
 
     #region Start and Update
@@ -27,36 +27,85 @@ public class GridBuilder : MonoBehaviour {
         //fill grid with nodes
         BuildGrid();
 
-        //Find and add all units
-        units = GameObject.FindGameObjectsWithTag("Unit");
+        units = new List<GameObject>();
     }
 
     //Update is called once per frame
     void Update()
     {
-        //TEST CODE
-        //foreach (GameObject gridNode in grid) //clear all nodes
-        //{
-        //    gridNode.GetComponent<GridNode>().RedInfluence = 0;
-        //}
-        //
-        ////get xy pos of cube in grid coords
-        //int x = GetNode(cube.transform.position)[0];
-        //int y = GetNode(cube.transform.position)[1];
-        //
-        //GameObject n = grid[x, y]; //get node at the pos of the cube
-        //n.GetComponent<GridNode>().Source = true; //make it a source node
-        //n.GetComponent<GridNode>().RedInfluence = 3; //influence that node
-        //
-        ////aplly influence to its neighbors
-        //InfluenceNeighbors(x, y);
-        //END TEST CODE
-
-        foreach (GameObject unit in units)
+        if (Input.GetKeyDown(KeyCode.Space)) //Update map on keypress
         {
-            grid[GetNode(unit.transform.position)[0], GetNode(unit.transform.position)[1]].GetComponent<GridNode>().Source = true; //make it a source node
-            grid[GetNode(unit.transform.position)[0], GetNode(unit.transform.position)[1]].GetComponent<GridNode>().RedInfluence = 4; //influence that node
-            InfluenceNeighbors(GetNode(unit.transform.position)[0], GetNode(unit.transform.position)[1]);
+            //Find and add all units
+            GameObject[] unitsArray = GameObject.FindGameObjectsWithTag("Unit");
+
+            //If more units have been added
+            if (unitsArray.Length != units.Count)
+            {
+                units.Clear(); //Clear the array of units
+
+                foreach (GameObject unit in unitsArray)
+                {
+                    units.Add(unit);
+                }
+            }
+
+            foreach (GameObject unit in units)
+            {
+                //Save positions
+                int x = GetNode(unit.transform.position)[0];
+                int y = GetNode(unit.transform.position)[1];
+
+                GridNode tile = grid[x, y].GetComponent<GridNode>(); //Save the tile
+
+                tile.Source = true; //Make this node a source node
+
+                if (unit.GetComponent<UnitStats>().team == "Red")
+                    tile.RedInfluence += unit.GetComponent<UnitStats>().strength;
+                else
+                    tile.GreenInfluence += unit.GetComponent<UnitStats>().strength;
+
+                //if (tile.RedInfluence > tile.GreenInfluence) //Red tile
+                //    tile.Team = "Red";
+                //else if (tile.RedInfluence < tile.GreenInfluence) //Green tile
+                //    tile.Team = "Green";
+                //else
+                //    tile.Team = "None";
+                
+                //if (tile.Team == "None") //No unit on this tile
+                //{
+                //    tile.Team = unit.GetComponent<UnitStats>().team;
+                //
+                //    //Assign unit strength
+                //    if (tile.Team == "Red")
+                //        tile.RedInfluence = unit.GetComponent<UnitStats>().strength;
+                //    else
+                //        tile.GreenInfluence = unit.GetComponent<UnitStats>().strength;
+                //}
+                //else //Unit on this tile
+                //{
+                //    //Assign unit strength
+                //    if (tile.Team == "Red")
+                //        tile.GreenInfluence = unit.GetComponent<UnitStats>().strength;
+                //    else
+                //        tile.RedInfluence = unit.GetComponent<UnitStats>().strength;
+                //
+                //    tile.Team = "None";
+                //}
+
+                tile.CompareInfluence(tile.RedInfluence, tile.GreenInfluence);
+
+                Debug.Log(tile.Team);
+
+                InfluenceNeighbors(x, y); //Calculate the grid's influence
+            }
+        }
+
+        //Reset tile influences
+        foreach (GameObject node in grid)
+        {
+            node.GetComponent<GridNode>().GreenInfluence = 0;
+            node.GetComponent<GridNode>().RedInfluence = 0;
+            node.GetComponent<GridNode>().ActiveInfluence = 0;
         }
     }
     #endregion
@@ -97,41 +146,6 @@ public class GridBuilder : MonoBehaviour {
     /// <param name="y">y value of grid[x,y]</param>
     public void InfluenceNeighbors(int x, int y)
     {
-        /*
-        //check if node is a source node
-        if(!grid[x, y].GetComponent<GridNode>().Source)
-        {
-            return; //leave the method bc its not a source node
-        }
-
-        //apply influence linearly to neighbors
-        int localInfluence = grid[x, y].GetComponent<GridNode>().ActiveInfluence - 1;
-        for (int a = x; a < (x + grid[x, y].GetComponent<GridNode>().ActiveInfluence - 1); a++)
-        {
-            for (int b = y; b < (y + grid[x, y].GetComponent<GridNode>().ActiveInfluence - 1); b++)
-            {
-                //get which team this node is on and apply that teams influence on neighbor
-                if(grid[x, y].GetComponent<GridNode>().Team == "Red")
-                {
-                    grid[a, b].GetComponent<GridNode>().RedInfluence += localInfluence;
-                }
-                else if (grid[x, y].GetComponent<GridNode>().Team == "Green")
-                {
-                    grid[a, b].GetComponent<GridNode>().GreenInfluence += localInfluence;
-                }
-
-                //drop influence
-                localInfluence--;
-
-                //DEBUG LINE
-                Debug.Log(a + ", " + b);
-            }
-
-            //reset influence
-            localInfluence = grid[x, y].GetComponent<GridNode>().ActiveInfluence - 1;
-        }
-        */
-
         //check if node is a source node
         if (!grid[x, y].GetComponent<GridNode>().Source)
         {
@@ -139,6 +153,7 @@ public class GridBuilder : MonoBehaviour {
         }
 
         int influence = grid[x, y].GetComponent<GridNode>().ActiveInfluence; //The influence of the grid point
+
         //Loop through the grid around the point of influence, don't go out of bounds
         for (int i = x - influence; (i < x + influence + 1) && i >= 0 && i < 20; i++)
         {
@@ -151,10 +166,19 @@ public class GridBuilder : MonoBehaviour {
 
                 if (!(x == i && y == j) && distance > 0) //Not the center point
                 {
-                    if (grid[x, y].GetComponent<GridNode>().Team == "Red")
+                    //Reset influence
+                    grid[i, j].GetComponent<GridNode>().RedInfluence = 0;
+                    grid[i, j].GetComponent<GridNode>().GreenInfluence = 0;
+
+                    if (grid[x, y].GetComponent<GridNode>().Team == "Red") //Red team tile
                         grid[i, j].GetComponent<GridNode>().RedInfluence += distance;
-                    else if (grid[x, y].GetComponent<GridNode>().Team == "Green")
+                    else if (grid[x, y].GetComponent<GridNode>().Team == "Green") //Green team tile
                         grid[i, j].GetComponent<GridNode>().GreenInfluence += distance;
+                    else if (grid[x, y].GetComponent<GridNode>().Team == "None") //Both teams on tile
+                    {
+                        grid[i, j].GetComponent<GridNode>().RedInfluence += distance;
+                        grid[i, j].GetComponent<GridNode>().GreenInfluence += distance;
+                    }
                 }
             }
         }
